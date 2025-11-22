@@ -196,9 +196,24 @@ func pipeline() {
 		log.Fatal(err)
 	}
 
+	log.Println("Initializing Telegram client...")
+	t, err := helpers.NewTelegramClient(cfg.TelegramToken, cfg.TelegramChatID)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Telegram client initialized")
+
+	log.Println("Sending test message to Telegram...")
+	_, err = t.SendMessage(helpers.StartUpdate)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("Message sent successfully.")
+
 	log.Println("Initializing notion client...")
 	nc, err := notion.NewNotionClient(cfg.NotionAPIKey)
 	if err != nil {
+		t.SendError(err.Error())
 		log.Fatal(err)
 	}
 	log.Println("Notion client initialized")
@@ -206,11 +221,13 @@ func pipeline() {
 	log.Println("Initializing Git client...")
 	gitClient, err := helpers.NewMyGit(cfg.GitPAT)
 	if err != nil {
+		t.SendError(err.Error())
 		log.Fatal(err)
 	}
 	log.Println("Cloning repository...")
 	err = gitClient.CloneRepository(clonePath, repoURL)
 	if err != nil {
+		t.SendError(err.Error())
 		log.Fatal(err)
 	}
 	log.Println("Cloned repository.")
@@ -220,28 +237,33 @@ func pipeline() {
 	if err != nil {
 		err = gitClient.CheckoutBranch(branchName, true)
 		if err != nil {
+			t.SendError(err.Error())
 			log.Fatalf("could not create a new branch: %v", err)
 		}
 	}
 	err = gitClient.CheckoutBranch(branchName, false)
 	if err != nil {
+		t.SendError(err.Error())
 		log.Fatalf("could not checkout branch %v: %v", branchRefName.String(), err)
 	}
 
 	log.Println("Pulling Notion Projects...")
 	nProjects, err := nc.GetProjects()
 	if err != nil {
+		t.SendError(err.Error())
 		log.Fatalf("failed to get notion projects: %v", err)
 	}
 	log.Println("Pulling Notion Locations...")
 	nLocations, err := nc.GetLocations()
 	if err != nil {
+		t.SendError(err.Error())
 		log.Fatalf("failed to get notion locations: %v", err)
 	}
 
 	log.Println("Setting up Projects list...")
 	projects, err := setProjects(nProjects, nc, nLocations)
 	if err != nil {
+		t.SendError(err.Error())
 		log.Fatalf("failed to set Project list: %v", err)
 	}
 	log.Printf("%v projects where found.", len(projects))
@@ -249,6 +271,7 @@ func pipeline() {
 	log.Println("Emptying post folder...")
 	err = helpers.NukeFolder(fmt.Sprintf("%v/%v", clonePath, postsPath))
 	if err != nil {
+		t.SendError(err.Error())
 		log.Fatal(err)
 	}
 
@@ -259,11 +282,13 @@ func pipeline() {
 		log.Printf("Creating post folder: %v", postFolderName)
 		err = helpers.CreateFolder(postFolderName)
 		if err != nil {
+			t.SendError(err.Error())
 			log.Fatal(err)
 		}
 		log.Printf("Setting up template...")
 		postTemplateDetails, err := setTemplateDataDetails(project.Dates)
 		if err != nil {
+			t.SendError(err.Error())
 			log.Fatal(err)
 		}
 		postTemplateData := setPostTemplateData(project, postTemplateDetails)
@@ -271,6 +296,7 @@ func pipeline() {
 		log.Printf("Generating post as %v/%v", postFolderName, postFileName)
 		err = template.GeneratePost(templateFileName, postFolderName, postFileName, postTemplateData)
 		if err != nil {
+			t.SendError(err.Error())
 			log.Fatal(err)
 		}
 
@@ -279,6 +305,7 @@ func pipeline() {
 			imagePath := fmt.Sprintf("%v/%v", postFolderName, imageName)
 			err = helpers.DownloadImage(project.GDriveImageUrl, imagePath)
 			if err != nil {
+				t.SendError(err.Error())
 				log.Fatal(err)
 			}
 		}
@@ -287,6 +314,7 @@ func pipeline() {
 	log.Println("Add, commit and push...")
 	commitHash, err := gitClient.AddAndCommit()
 	if err != nil {
+		t.SendError(err.Error())
 		log.Fatal(err)
 	}
 
@@ -294,16 +322,20 @@ func pipeline() {
 		log.Println("Commit:", commitHash.String())
 		err = gitClient.Push(branchName)
 		if err != nil {
+			t.SendError(err.Error())
 			log.Fatal(err)
 		}
 		log.Printf("Pushed: %v", commitHash.String())
+		t.SendMessage(helpers.SuccessAndUpdate)
 	} else {
+		t.SendMessage(helpers.SuccessNoUpdate)
 		log.Println("No changes detected skipping commit.")
 	}
 
 	log.Println("Cleaning up...")
 	err = os.RemoveAll(clonePath)
 	if err != nil {
+		t.SendError(err.Error())
 		log.Fatalf("failed to clean up: %v", err)
 	}
 	log.Println("Repository deleted.")

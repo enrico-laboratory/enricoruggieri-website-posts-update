@@ -1,6 +1,5 @@
 .env
-secrets/git_pat.txt
-secrets/notion_token.txt
+secrets/
 *.iml
 
 # Hugo output

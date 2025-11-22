@@ -5,12 +5,20 @@ services:
     secrets:
       - notion_token
       - git_pat
+      - telegram_chat_id
+      - telegram_token
     environment:
       NOTION_TOKEN_PATH: /run/secrets/notion_token
       GIT_PAT_PATH: /run/secrets/git_pat
+      TELEGRAM_CHAT_ID_PATH: /run/secrets/telegram_chat_id
+      TELEGRAM_TOKEN_PATH: /run/secrets/telegram_token
 
 secrets:
   notion_token:
     file: ./secrets/notion_token.txt
   git_pat:
     file: ./secrets/git_pat.txt
+  telegram_chat_id:
+    file: ./secrets/telegram_chat_id.txt
+  telegram_token:
+    file: ./secrets/telegram_token.txt
