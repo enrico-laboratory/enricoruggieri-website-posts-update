@@ -26,7 +26,6 @@ yarn-error.log
 .pnp.js
 
 # Go module caches (if using Hugo Modules)
-go.sum
 go.work
 .go/
 
