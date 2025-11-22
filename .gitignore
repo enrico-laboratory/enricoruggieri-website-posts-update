@@ -1,8 +1,7 @@
 .env
 secrets/git_pat.txt
 secrets/notion_token.txt
-
-webiste-update.iml
+*.iml
 
 # Hugo output
 /public/
