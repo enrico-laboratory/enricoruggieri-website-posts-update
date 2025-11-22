@@ -1,5 +1,6 @@
 .env
-secrets/
+!secrets/.gitkeep
+secrets/*
 *.iml
 
 # Hugo output
