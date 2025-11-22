@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    restart: no
+    secrets:
+      - notion_token
+      - git_pat
+    environment:
+      NOTION_TOKEN_PATH: /run/secrets/notion_token
+      GIT_PAT_PATH: /run/secrets/git_pat
+
+secrets:
+  notion_token:
+    file: ./secrets/notion_token.txt
+  git_pat:
+    file: ./secrets/git_pat.txt

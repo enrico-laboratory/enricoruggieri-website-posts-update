@@ -1,0 +1,47 @@
+.env
+secrets/git_pat.txt
+secrets/notion_token.txt
+
+webiste-update.iml
+
+# Hugo output
+/public/
+/resources/_gen/
+
+# Hugo caches
+.hugo_build.lock
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
+
+# Node/Yarn (if using Hugo Pipes, Tailwind, PostCSS, etc.)
+node_modules/
+npm-debug.log
+yarn-error.log
+.pnp.*
+.pnp.js
+
+# Go module caches (if using Hugo Modules)
+go.sum
+go.work
+.go/
+
+# IDE / Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Sass / PostCSS caches
+.sass-cache/
+
+# Netlify
+.netlify/
+
+# Deployment artifacts
+dist/

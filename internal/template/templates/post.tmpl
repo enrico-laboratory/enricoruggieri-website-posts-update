@@ -1,0 +1,43 @@
+{{define "post"}}
+---
+author: ["{{ .Author }}"]
+title: "{{ .Name }}"
+date: "{{ (.FirstDate.Format "2006-01-02") }}"
+description: "{{ .Ensemble }}"
+summary: "{{ .Ensemble }}"
+tags:
+{{- range .Tags }}
+  - {{ . }}
+{{- end }}
+categories:
+{{- range .Categories }}
+  - {{ . }}
+{{- end }}
+ShowToc: false
+TocOpen: false
+ShowReadingTime: false
+comments: false
+hideFooter: false
+disableShare: true
+---
+{{- if .ImageName }}
+![image]({{ .ImageName }})
+{{- end }}
+
+{{- if .BuyTicketUrl }}
+  [Buy ticket]({{ .BuyTicketUrl }})
+{{ end }}
+{{- range .Details }}
+**{{ (.Date.Format "02 January 2006, 15:04") }}**
+{{ if .Venue.Name}}
+{{ .Venue.Name }}{{ if .Venue.Address}} - *{{.Venue.Address}}* *{{.Venue.City}}*{{ end }}
+{{ end }}
+{{ end }}
+
+
+{{ if .Description }}
+## Description
+
+{{ .Description }}
+{{- end }}
+{{- end }}
